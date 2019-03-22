@@ -28,3 +28,4 @@ logging:
 tstar:
   username: trash
   password: 123456
+  terminal-type: trash_gb32960
