@@ -1,0 +1,30 @@
+# WEB PROPERTIES
+server:
+  port: 8080
+
+# SPRING
+spring:
+  # DATASOURCE
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: 'oracle.jdbc.OracleDriver'
+    url: 'jdbc:oracle:thin:@192.168.1.156:1521/xgsid.xg156.com'
+    username: 'NEV'
+    password: 'NEV'
+
+  # jpa
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+# LOGGING
+logging:
+  level:
+        org.springframework.jdbc: info
+
+
+tstar:
+  username: trash
+  password: 123456
