@@ -1,0 +1,4 @@
+rootProject.name = 'nev-cloud'
+include 'nev-gw'
+include 'nev-rp'
+
