@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-api/com.tiza.nev-api.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-api/com.tiza.nev-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-api/com.tiza.nev-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-api/com.tiza.nev-api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-api/com.tiza.nev-api.test.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-api/com.tiza.nev-api.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-gw/com.tiza.nev-gw.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-gw/com.tiza.nev-gw.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-gw/com.tiza.nev-gw.main.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-gw/com.tiza.nev-gw.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-gw/com.tiza.nev-gw.test.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-gw/com.tiza.nev-gw.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-rp/com.tiza.nev-rp.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-rp/com.tiza.nev-rp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-rp/com.tiza.nev-rp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-rp/com.tiza.nev-rp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nev-rp/com.tiza.nev-rp.test.iml" filepath="$PROJECT_DIR$/.idea/modules/nev-rp/com.tiza.nev-rp.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-264075027/com.tiza.tstar-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/-264075027/com.tiza.tstar-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-264075027/com.tiza.tstar-plugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/-264075027/com.tiza.tstar-plugin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-264075027/com.tiza.tstar-plugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/-264075027/com.tiza.tstar-plugin.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/nev-cloud.iml" filepath="$PROJECT_DIR$/nev-cloud.iml" />
+    </modules>
+  </component>
+</project>

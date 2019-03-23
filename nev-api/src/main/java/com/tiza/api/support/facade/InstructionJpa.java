@@ -10,5 +10,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface InstructionJpa extends JpaRepository<Instruction, Long> {
 
-    Instruction findById(Long id);
 }

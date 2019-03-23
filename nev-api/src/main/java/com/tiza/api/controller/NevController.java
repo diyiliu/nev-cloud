@@ -42,7 +42,7 @@ public class NevController {
 
     @GetMapping("/send/{id}")
     public String toSend(@PathVariable Long id) throws Exception {
-        Instruction instruction = instructionJpa.findById(id);
+        Instruction instruction = instructionJpa.findById(id).get();
 
         if (instruction == null) {
             return "error";
