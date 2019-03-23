@@ -40,6 +40,8 @@ public class Instruction {
 
     private Integer errorCode;
 
+    private Integer serialNo;
+
     @Column(name = "SENDSTATUS")
     private Integer status;
 }

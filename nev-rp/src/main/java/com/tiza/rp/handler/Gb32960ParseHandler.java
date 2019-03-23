@@ -38,7 +38,7 @@ public class Gb32960ParseHandler extends BaseHandle {
             return null;
         }
 
-        String terminalId = header.getTerminalId();
+        String terminalId = header.getVin();
         ICache vehicleInfoProvider = SpringUtil.getBean("vehicleInfoProvider");
 
         //log.info("设备缓存: {}", JacksonUtil.toJson(vehicleInfoProvider.getKeys()));
@@ -49,7 +49,10 @@ public class Gb32960ParseHandler extends BaseHandle {
             return null;
         }
 
+        // 设置网关时间
         header.setGwTime(rpTuple.getTime());
+        // 设置 TStar 操作句柄
+        process.setTstarHandle(this);
         // 指令解析
         process.parse(header.getContent(), header);
 

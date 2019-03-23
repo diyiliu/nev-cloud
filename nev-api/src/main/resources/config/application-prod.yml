@@ -1,0 +1,18 @@
+# WEB PROPERTIES
+server:
+  port: 7777
+
+# SPRING
+spring:
+  # DATASOURCE
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: 'oracle.jdbc.OracleDriver'
+    url: 'jdbc:oracle:thin:@192.168.1.36:1521/hyora'
+    username: 'NEV'
+    password: 'NEV'
+
+tstar:
+  username: nev
+  password: 123456
+  terminal-type: nev_gb32960

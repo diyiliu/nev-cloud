@@ -6,6 +6,7 @@
     <property>
         <name>tstar.common.database.url</name>
         <value>jdbc:oracle:thin:@192.168.1.156:1521/xgsid.xg156.com</value>
+        <!--<value>jdbc:oracle:thin:@192.168.1.36:1521/hyora</value>-->
     </property>
     <property>
         <name>tstar.common.database.username</name>
@@ -36,6 +37,7 @@
     <property>
         <name>tstar.common.redis.host</name>
         <value>192.168.1.156</value>
+        <!--<value>192.168.1.37</value>-->
         <descrption>Redis server host.</descrption>
     </property>
     <property>
@@ -46,6 +48,7 @@
     <property>
         <name>tstar.common.redis.password</name>
         <value></value>
+        <!--<value>1</value>-->
         <descrption>Redis server password.</descrption>
     </property>
     <property>

@@ -4,7 +4,6 @@ spring:
   profiles:
     active: dev
 
-
   #json
   jackson:
     locale: zh_CN

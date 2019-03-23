@@ -19,12 +19,6 @@ spring:
         format_sql: true
         show_sql: true
 
-# LOGGING
-logging:
-  level:
-        org.springframework.jdbc: info
-
-
 tstar:
   username: trash
   password: 123456

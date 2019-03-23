@@ -2,8 +2,9 @@ group 'com.tiza'
 version '1.0'
 
 apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
     mavenLocal()
@@ -38,4 +39,21 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
+
+jar {
+    archiveName = 'nev-api.jar'
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
+    }
+}
+
 
