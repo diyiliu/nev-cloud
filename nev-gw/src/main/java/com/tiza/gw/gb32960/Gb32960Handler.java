@@ -7,8 +7,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.Date;
-
 /**
  * Description: Gb32960Handler
  * Author: Wangw
@@ -16,6 +14,11 @@ import java.util.Date;
  */
 
 public class Gb32960Handler extends BaseUserDefinedHandler {
+
+    /**
+     * 0: 平台转发数据; 1: 车载终端数据
+     **/
+    private final static int ORIGIN_FROM = 0;
 
     public TStarData handleRecvMessage(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) {
         byte[] msgBody = new byte[byteBuf.readableBytes()];
@@ -37,6 +40,9 @@ public class Gb32960Handler extends BaseUserDefinedHandler {
         byteBuf.readByte();
         // 数据单元长度
         int length = byteBuf.readUnsignedShort();
+        // 指令内容
+        byte[] bytes = new byte[length];
+        byteBuf.readBytes(bytes);
 
         TStarData tStarData = new TStarData();
         tStarData.setMsgBody(msgBody);
@@ -46,7 +52,7 @@ public class Gb32960Handler extends BaseUserDefinedHandler {
 
         // 需要应答
         if (resp == 0xFE) {
-            doResponse(channelHandlerContext, tStarData, length);
+            doResponse(channelHandlerContext, vin, cmd, bytes);
         }
 
         return tStarData;
@@ -56,47 +62,58 @@ public class Gb32960Handler extends BaseUserDefinedHandler {
      * 指令应答
      *
      * @param ctx
-     * @param tStarData
-     * @param length
+     * @param terminal
+     * @param cmd
+     * @param bytes
      */
-    private void doResponse(ChannelHandlerContext ctx, TStarData tStarData, int length) {
-        byte[] bytes = packResp(tStarData, length > 0 ? true : false);
+    private void doResponse(ChannelHandlerContext ctx, String terminal, int cmd, byte[] bytes) {
+        // 平台数据
+        if (ORIGIN_FROM == 0 && bytes.length > 5) {
+            byte[] dateArray = new byte[6];
+            System.arraycopy(bytes, 0, dateArray, 0, 6);
+            bytes = dateArray;
+        }
+
+        // 应答内容
+        byte[] content = packResp(terminal, cmd, bytes);
 
         TStarData respData = new TStarData();
-        respData.setTerminalID(tStarData.getTerminalID());
-        respData.setCmdID(tStarData.getCmdID());
-        respData.setMsgBody(bytes);
+        respData.setTerminalID(terminal);
+        respData.setCmdID(cmd);
+        respData.setMsgBody(content);
         respData.setTime(System.currentTimeMillis());
         ctx.channel().writeAndFlush(respData);
     }
 
-
-    private byte[] packResp(TStarData tStarData, boolean dateFlag) {
-        int cmd = tStarData.getCmdID();
-
-        int length = dateFlag ? 31 : 25;
-        ByteBuf buf = Unpooled.buffer(length);
+    /**
+     * 生成应答数据
+     *
+     * @param terminal
+     * @param cmd
+     * @param bytes
+     * @return
+     */
+    private byte[] packResp(String terminal, int cmd, byte[] bytes) {
+        int length = bytes.length;
+        ByteBuf buf = Unpooled.buffer(25 + length);
         buf.writeByte(0x23);
         buf.writeByte(0x23);
         buf.writeByte(cmd);
         buf.writeByte(0x01);
         // VIN
-        buf.writeBytes(tStarData.getTerminalID().getBytes());
+        buf.writeBytes(terminal.getBytes());
         // 不加密
         buf.writeByte(0x01);
-        buf.writeShort(dateFlag ? 6 : 0);
-        // 是否包含时间
-        if (dateFlag) {
+        buf.writeShort(length);
+        // 返回数据
+        buf.writeBytes(bytes);
 
-            // 时间
-            byte[] dateArray = CommonUtil.dateToBytes(new Date());
-            buf.writeBytes(dateArray);
-        }
         // 获取校验位
-        byte[] content = new byte[length - 3];
+        byte[] content = new byte[22 + length];
         buf.getBytes(2, content);
         int check = CommonUtil.getCheck(content);
         buf.writeByte(check);
+
         return buf.array();
     }
 }
