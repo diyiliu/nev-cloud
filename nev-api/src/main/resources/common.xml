@@ -15,6 +15,7 @@
     <property>
         <name>tstar.common.database.password</name>
         <value>TSTAR</value>
+        <!--<value>Tstar123</value>-->
     </property>
     <property>
         <name>tstar.common.database.pool.max.connections</name>
@@ -48,12 +49,13 @@
     <property>
         <name>tstar.common.redis.password</name>
         <value></value>
-        <!--<value>1</value>-->
+        <!--<value>Test123</value>-->
         <descrption>Redis server password.</descrption>
     </property>
     <property>
         <name>tstar.common.redis.db</name>
         <value>0</value>
+        <!--<value>1</value>-->
         <descrption>Redis server db. (0,1,2...)</descrption>
     </property>
 

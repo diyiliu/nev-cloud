@@ -15,11 +15,6 @@ public class VehicleBaseService implements IExecutor {
 
     private VehicleInfo vehicleInfo;
 
-    private Jedis jedis;
-
-    private Map dataMap;
-
-
     @Override
     public void run() {
 
@@ -31,21 +26,5 @@ public class VehicleBaseService implements IExecutor {
 
     public void setVehicleInfo(VehicleInfo vehicleInfo) {
         this.vehicleInfo = vehicleInfo;
-    }
-
-    public Jedis getJedis() {
-        return jedis;
-    }
-
-    public void setJedis(Jedis jedis) {
-        this.jedis = jedis;
-    }
-
-    public Map getDataMap() {
-        return dataMap;
-    }
-
-    public void setDataMap(Map dataMap) {
-        this.dataMap = dataMap;
     }
 }

@@ -17,11 +17,15 @@ import java.util.Map;
  */
 public class CurrentStatusService extends VehicleBaseService {
 
+    private Map dataMap;
+
+    private Jedis jedis;
+
     private String redisChannel;
 
     @Override
     public void run() {
-        dealRealModel(getDataMap(), getVehicleInfo());
+        dealRealModel(dataMap, getVehicleInfo());
     }
 
     /**
@@ -32,7 +36,6 @@ public class CurrentStatusService extends VehicleBaseService {
      */
     public void dealRealModel(Map modelMap, VehicleInfo vehicleInfo) {
         String prefix = "model:gb32960:";
-        Jedis jedis = getJedis();
         try {
             for (Iterator iterator = modelMap.keySet().iterator(); iterator.hasNext(); ) {
                 String key = (String) iterator.next();
@@ -54,8 +57,6 @@ public class CurrentStatusService extends VehicleBaseService {
                     }
                 }
             }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
         } finally {
             if (jedis != null) {
                 jedis.close();
@@ -108,19 +109,18 @@ public class CurrentStatusService extends VehicleBaseService {
         message.put("message", content);
 
         // 消息发布到redis
-        Jedis jedis = getJedis();
-        try {
-            jedis.publish(redisChannel, JacksonUtil.toJson(message));
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null) {
-                jedis.close();
-            }
-        }
+        jedis.publish(redisChannel, JacksonUtil.toJson(message));
     }
 
     public void setRedisChannel(String redisChannel) {
         this.redisChannel = redisChannel;
+    }
+
+    public void setDataMap(Map dataMap) {
+        this.dataMap = dataMap;
+    }
+
+    public void setJedis(Jedis jedis) {
+        this.jedis = jedis;
     }
 }

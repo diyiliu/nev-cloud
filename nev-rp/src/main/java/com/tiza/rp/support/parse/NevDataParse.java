@@ -2,6 +2,7 @@ package com.tiza.rp.support.parse;
 
 import cn.com.tiza.tstar.common.process.BaseHandle;
 import cn.com.tiza.tstar.common.process.RPTuple;
+import cn.com.tiza.tstar.common.utils.JedisUtil;
 import com.tiza.plugin.bean.VehicleInfo;
 import com.tiza.plugin.cache.ICache;
 import com.tiza.plugin.model.DeviceData;
@@ -10,7 +11,10 @@ import com.tiza.plugin.model.adapter.DataParseAdapter;
 import com.tiza.plugin.util.DateUtil;
 import com.tiza.plugin.util.JacksonUtil;
 import com.tiza.rp.support.config.NevConstant;
+import com.tiza.rp.support.service.CurrentStatusService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,7 +36,6 @@ import java.util.concurrent.Executors;
 @Slf4j
 @Service
 public class NevDataParse extends DataParseAdapter {
-
     /**
      * 任务调度器
      **/
@@ -44,29 +47,53 @@ public class NevDataParse extends DataParseAdapter {
     @Resource
     private JdbcTemplate jdbcTemplate;
 
-    @Value("${}")
+    @Resource
+    private JedisUtil jedisUtil;
+
+    @Value("${kafka.vehicle-track}")
     private String vehicleTrackTopic;
 
-    @Value("${}")
+    @Value("${redis.vehicle-move}")
     private String vehicleMoveChannel;
+
+    @Value("${redis.vehicle-event}")
+    private String vehicleEventChannel;
+
+
+    @Override
+    public void detach(DeviceData deviceData) {
+        VehicleInfo vehicleInfo = (VehicleInfo) vehicleInfoProvider.get(deviceData.getDeviceId());
+
+        // 车辆实时状态处理
+        Map realMode = (Map) deviceData.getDataBody();
+        if (MapUtils.isEmpty(realMode)) {
+            return;
+        }
+
+        CurrentStatusService statusService = new CurrentStatusService();
+        statusService.setRedisChannel(vehicleEventChannel);
+        statusService.setJedis(jedisUtil.getJedis());
+        statusService.setDataMap(realMode);
+        statusService.setVehicleInfo(vehicleInfo);
+        executorService.execute(statusService);
+    }
 
     @Override
     public void dealWithTStar(DeviceData deviceData, BaseHandle handle) {
-        List<Map> paramValues = (List<Map>) deviceData.getDataBody();
-
         int cmd = deviceData.getCmdId();
-        String vin = deviceData.getDeviceId();
-        if (!vehicleInfoProvider.containsKey(vin)) {
-            log.warn("[{}] 车辆列表不存在!", vin);
+        VehicleInfo vehicleInfo = (VehicleInfo) vehicleInfoProvider.get(deviceData.getDeviceId());
+
+        List<Map> paramValues = (List<Map>) deviceData.getDataBody();
+        if (CollectionUtils.isEmpty(paramValues)) {
+
             return;
         }
-        VehicleInfo vehicleInfo = (VehicleInfo) vehicleInfoProvider.get(vin);
 
         Map kafkaMap = new HashMap();
+        List list = new ArrayList();
 
         Date gpsTime = null;
         Double speed = null;
-        List list = new ArrayList();
         StringBuilder str = new StringBuilder("update BS_VEHICLEGPSINFO set ");
         for (int i = 0; i < paramValues.size(); i++) {
             Map map = paramValues.get(i);
@@ -128,7 +155,14 @@ public class NevDataParse extends DataParseAdapter {
 
                         // 发布redis
                         if (0x02 == cmd) {
-                            toRedis(vehicleInfo, position, handle.getJedis());
+                            Jedis jedis = jedisUtil.getJedis();
+                            try {
+                                toRedis(vehicleInfo, position, jedis);
+                            } finally {
+                                if (jedis != null) {
+                                    jedis.close();
+                                }
+                            }
                         }
                     }
                     continue;
@@ -151,13 +185,6 @@ public class NevDataParse extends DataParseAdapter {
             jdbcTemplate.update(sql, list.toArray());
         }
     }
-
-    @Override
-    public void dealData(DeviceData deviceData, Map param, String type) {
-
-
-    }
-
 
     private void toKafka(DeviceData deviceData, VehicleInfo vehicle, Map paramValues, BaseHandle handle) {
         paramValues.put(NevConstant.Location.VEHICLE_ID, vehicle.getId());
@@ -184,17 +211,8 @@ public class NevDataParse extends DataParseAdapter {
 
         posMap.put(NevConstant.Location.STATUS, vehicle.getStatus() == null ? "" : vehicle.getStatus());
 
-
         log.info("车辆[{}]发布Redis位置信息...", vehicle.getId());
-        try {
-            jedis.publish(vehicleMoveChannel, JacksonUtil.toJson(posMap));
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null) {
-                jedis.close();
-            }
-        }
+        jedis.publish(vehicleMoveChannel, JacksonUtil.toJson(posMap));
     }
 
     public Object formatValue(Object obj) {
