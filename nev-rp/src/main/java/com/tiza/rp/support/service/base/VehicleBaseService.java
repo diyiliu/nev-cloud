@@ -2,9 +2,6 @@ package com.tiza.rp.support.service.base;
 
 import com.tiza.plugin.bean.VehicleInfo;
 import com.tiza.plugin.model.facade.IExecutor;
-import redis.clients.jedis.Jedis;
-
-import java.util.Map;
 
 /**
  * Description: VehicleBaseService
