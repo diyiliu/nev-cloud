@@ -118,14 +118,19 @@ public class NevController {
      */
     private byte[] queryParam(String content) {
         String[] paramIds = content.split(",");
-        int length = paramIds.length;
-        byte[] bytes = new byte[length + 1];
-        bytes[0] = (byte) length;
-        for (int i = 0; i < length; i++) {
-            bytes[i + 1] = Byte.valueOf(paramIds[i]);
+        int n = 0;
+        ByteBuf buf = Unpooled.buffer();
+        for (int i = 0; i < paramIds.length; i++) {
+            int id = Integer.valueOf(paramIds[i]);
+            if (0x05 == id || 0x0E == id) {
+                buf.writeByte(id - 1);
+                n++;
+            }
+            buf.writeByte(id);
+            n++;
         }
 
-        return bytes;
+        return combine(n, buf);
     }
 
     /**
@@ -151,11 +156,23 @@ public class NevController {
             }
         }
 
-        int length = buf.writerIndex();
-        byte[] byteArr = new byte[length + 1];
-        byteArr[0] = (byte) i;
-        buf.getBytes(0, byteArr, 1, length);
+        return combine(i, buf);
+    }
 
-        return byteArr;
+    /**
+     * 第一个字节 添加数量
+     *
+     * @param count
+     * @param buf
+     * @return
+     */
+    private byte[] combine(int count, ByteBuf buf) {
+        int length = buf.writerIndex();
+        byte[] bytes = new byte[length + 1];
+        bytes[0] = (byte) count;
+
+        buf.getBytes(0, bytes, 1, length);
+
+        return bytes;
     }
 }

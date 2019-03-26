@@ -59,17 +59,37 @@ public class NevDataParse extends DataParseAdapter {
     @Value("${redis.vehicle-event}")
     private String vehicleEventChannel;
 
-
     @Override
     public void detach(DeviceData deviceData) {
         VehicleInfo vehicleInfo = (VehicleInfo) vehicleInfoProvider.get(deviceData.getDeviceId());
+        String terminal = vehicleInfo.getTerminalId();
 
         if ("cmdResp".equals(deviceData.getDataType())) {
             int cmd = deviceData.getCmdId();
+            int resp = deviceData.getDataStatus();
             String hms = DateUtil.dateToString(new Date(deviceData.getTime()), "%1$tH%1$tM%1$tS");
-            Map respMap = (Map) deviceData.getDataBody();
 
-            log.info("指令应答[{}, {}, {}, {}]", vehicleInfo.getTerminalId(), cmd, hms, respMap);
+            String sql = "UPDATE bs_instructionlog t" +
+                    "   SET t.responsetime = ?, t.responsedata = ?, t.sendstatus = ?" +
+                    " WHERE t.terminalid = ?" +
+                    "   AND t.cmdid = ?" +
+                    "   AND t.serialno = ?";
+
+            // 3成功;4失败
+            int status = 4;
+            String respData = null;
+            if (resp == 1) {
+                status = 3;
+                Object object = deviceData.getDataBody();
+                if (object != null) {
+                    respData = JacksonUtil.toJson(object);
+                }
+            }
+
+            Object[] param = new Object[]{new Date(), respData, status, terminal, cmd, hms};
+            jdbcTemplate.update(sql, param);
+
+            log.info("指令应答[{}, {}, {}, {}]", vehicleInfo.getTerminalId(), cmd, hms, respData);
             return;
         }
 
@@ -195,6 +215,14 @@ public class NevDataParse extends DataParseAdapter {
         }
     }
 
+    /**
+     * 写入 Kafka
+     *
+     * @param deviceData
+     * @param vehicle
+     * @param paramValues
+     * @param handle
+     */
     private void toKafka(DeviceData deviceData, VehicleInfo vehicle, Map paramValues, BaseHandle handle) {
         paramValues.put(NevConstant.Location.VEHICLE_ID, vehicle.getId());
 
@@ -210,6 +238,13 @@ public class NevDataParse extends DataParseAdapter {
         handle.storeInKafka(rpTuple, vehicleTrackTopic);
     }
 
+    /**
+     * 发布 Redis
+     *
+     * @param vehicle
+     * @param position
+     * @param jedis
+     */
     private void toRedis(VehicleInfo vehicle, Position position, Jedis jedis) {
         Map posMap = new HashMap();
         posMap.put(NevConstant.Location.GPS_TIME, DateUtil.dateToString(new Date(position.getTime())));
@@ -225,8 +260,7 @@ public class NevDataParse extends DataParseAdapter {
     }
 
     public Object formatValue(Object obj) {
-        if (obj instanceof Map ||
-                obj instanceof Collection) {
+        if (obj instanceof Map || obj instanceof Collection) {
 
             return JacksonUtil.toJson(obj);
         }

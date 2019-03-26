@@ -2,8 +2,8 @@ group 'com.tiza'
 version '1.0'
 
 apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+//apply plugin: 'org.springframework.boot'
+//apply plugin: 'io.spring.dependency-management'
 
 sourceCompatibility = 1.8
 
@@ -41,11 +41,11 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
+/*
 
 bootJar {
     version = ''
 }
-
 buildscript {
     repositories {
         mavenLocal()
@@ -60,4 +60,5 @@ buildscript {
     }
 }
 
+*/
 
