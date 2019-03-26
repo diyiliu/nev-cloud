@@ -41,8 +41,8 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
-/*
 
+/*
 bootJar {
     version = ''
 }
@@ -59,6 +59,6 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE")
     }
 }
-
 */
+
 

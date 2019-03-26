@@ -43,4 +43,12 @@ public class TestMain {
 
         System.out.println(CommonUtil.bytesToStr(bytes));
     }
+
+    @Test
+    public void test3(){
+        String str = "123456";
+
+        byte[] bytes = CommonUtil.longToBytes(Long.valueOf(str), 2);
+
+    }
 }

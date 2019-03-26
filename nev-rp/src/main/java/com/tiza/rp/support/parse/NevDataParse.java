@@ -94,30 +94,28 @@ public class NevDataParse extends DataParseAdapter {
         }
 
         // 车辆实时状态处理
-        Map realMode = (Map) deviceData.getDataBody();
-        if (MapUtils.isEmpty(realMode)) {
-            return;
-        }
+        if (deviceData.getDataBody() != null){
+            Map realMode = (Map) deviceData.getDataBody();
 
-        CurrentStatusService statusService = new CurrentStatusService();
-        statusService.setRedisChannel(vehicleEventChannel);
-        statusService.setJedis(jedisUtil.getJedis());
-        statusService.setDataMap(realMode);
-        statusService.setVehicleInfo(vehicleInfo);
-        executorService.execute(statusService);
+            CurrentStatusService statusService = new CurrentStatusService();
+            statusService.setRedisChannel(vehicleEventChannel);
+            statusService.setJedis(jedisUtil.getJedis());
+            statusService.setDataMap(realMode);
+            statusService.setVehicleInfo(vehicleInfo);
+            executorService.execute(statusService);
+        }
     }
 
     @Override
     public void dealWithTStar(DeviceData deviceData, BaseHandle handle) {
         int cmd = deviceData.getCmdId();
         VehicleInfo vehicleInfo = (VehicleInfo) vehicleInfoProvider.get(deviceData.getDeviceId());
-
-        List<Map> paramValues = (List<Map>) deviceData.getDataBody();
-        if (CollectionUtils.isEmpty(paramValues)) {
+        if (deviceData.getDataBody() == null){
 
             return;
         }
 
+        List<Map> paramValues = (List<Map>) deviceData.getDataBody();
         Map kafkaMap = new HashMap();
         List list = new ArrayList();
 
