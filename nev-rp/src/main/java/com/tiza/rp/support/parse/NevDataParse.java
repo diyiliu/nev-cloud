@@ -64,6 +64,15 @@ public class NevDataParse extends DataParseAdapter {
     public void detach(DeviceData deviceData) {
         VehicleInfo vehicleInfo = (VehicleInfo) vehicleInfoProvider.get(deviceData.getDeviceId());
 
+        if ("cmdResp".equals(deviceData.getDataType())) {
+            int cmd = deviceData.getCmdId();
+            String hms = DateUtil.dateToString(new Date(deviceData.getTime()), "%1$tH%1$tM%1$tS");
+            Map respMap = (Map) deviceData.getDataBody();
+
+            log.info("指令应答[{}, {}, {}, {}]", vehicleInfo.getTerminalId(), cmd, hms, respMap);
+            return;
+        }
+
         // 车辆实时状态处理
         Map realMode = (Map) deviceData.getDataBody();
         if (MapUtils.isEmpty(realMode)) {

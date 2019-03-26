@@ -14,7 +14,8 @@
 
     <!-- 数据源 -->
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <!-- 基本属性 url、user、password -->
+        <!-- 如果 Oracle, 需要添加 driverClassName -->
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
         <property name="url" value="${jdbc.url}"/>
         <property name="username" value="${jdbc.username}"/>
         <property name="password" value="${jdbc.password}"/>
@@ -50,7 +51,7 @@
     <bean class="com.tiza.plugin.listener.SpringInitializer">
         <property name="protocols">
             <list>
-                <value>com.tiza.plugin.protocol.jt808.Jt808DataProcess</value>
+                <value>com.tiza.plugin.protocol.gb32960.Gb32960DataProcess</value>
             </list>
         </property>
     </bean>

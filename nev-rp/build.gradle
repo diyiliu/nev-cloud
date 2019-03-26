@@ -23,3 +23,38 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
+
+// 拷贝文件(排除项目自带jar)
+task copyJar(type: Copy) {
+    from configurations.runtime
+    into "$buildDir/dist"
+
+    exclude {
+        !it.file.name.contains('tstar-plugin') &&
+                !it.file.name.contains('earth4j') &&
+                it.file.path.contains('libs\\tstar')
+    }
+}
+
+jar {
+    archiveName = 'nev_gb32960.jar'
+
+    from {
+        File srcDir = file("$buildDir/dist")
+        // 使用闭合创建一个文件集合
+        FileCollection collection = files { srcDir.listFiles() }
+        collection.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+jar.dependsOn(copyJar)
+
+// 拷贝配置文件
+task copyConf(type: Copy) {
+    from "$projectDir/src/main/conf"
+    into "$buildDir/libs/conf"
+}
+
+task zip(type: Zip, dependsOn: [jar, copyConf]) {
+    archiveName = 'nev_gb32960.zip'
+    from 'build/libs'
+}

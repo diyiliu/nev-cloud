@@ -4,7 +4,9 @@ import cn.com.tiza.tstar.common.utils.JedisUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.Resource;
 
@@ -15,6 +17,8 @@ import javax.annotation.Resource;
  */
 
 @Configuration
+@EnableScheduling
+@PropertySource("classpath:config.properties")
 public class NevConfig {
 
     @Resource

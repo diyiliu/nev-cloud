@@ -18,7 +18,7 @@ public class Gb32960Handler extends BaseUserDefinedHandler {
     /**
      * 0: 平台转发数据; 1: 车载终端数据
      **/
-    private final static int ORIGIN_FROM = 0;
+    private final static int ORIGIN_FROM = 1;
 
     public TStarData handleRecvMessage(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) {
         byte[] msgBody = new byte[byteBuf.readableBytes()];
@@ -67,15 +67,21 @@ public class Gb32960Handler extends BaseUserDefinedHandler {
      * @param bytes
      */
     private void doResponse(ChannelHandlerContext ctx, String terminal, int cmd, byte[] bytes) {
-        // 平台数据
-        if (ORIGIN_FROM == 0 && bytes.length > 5) {
-            byte[] dateArray = new byte[6];
-            System.arraycopy(bytes, 0, dateArray, 0, 6);
-            bytes = dateArray;
+        byte[] respArr = new byte[0];
+
+        // 车载终端数据
+        if (1 == ORIGIN_FROM){
+            respArr = bytes;
+        }else {
+            if (bytes.length > 5){
+                byte[] dateArray = new byte[6];
+                System.arraycopy(bytes, 0, dateArray, 0, 6);
+                respArr = dateArray;
+            }
         }
 
         // 应答内容
-        byte[] content = packResp(terminal, cmd, bytes);
+        byte[] content = packResp(terminal, cmd, respArr);
 
         TStarData respData = new TStarData();
         respData.setTerminalID(terminal);

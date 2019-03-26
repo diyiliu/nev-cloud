@@ -72,6 +72,8 @@ public class NevController {
             byte[] time = CommonUtil.dateToBytes(now);
             // 生成下发指令
             byte[] content = CommonUtil.gb32960Response(vin, Unpooled.copiedBuffer(time, bytes).array(), cmd, false);
+            log.info("设备[{}]原始指令下发: [{}]", vin, CommonUtil.bytesToStr(content));
+
             // TStar 指令下发
             ClientCmdSendResult sendResult = tStarClient.cmdSend(terminalType, vin, cmd, CommonUtil.getMsgSerial(), content, 1);
 
@@ -86,6 +88,7 @@ public class NevController {
 
             String hms = DateUtil.dateToString(now, "%1$tH%1$tM%1$tS");
             instruction.setSerialNo(Integer.parseInt(hms));
+            instruction.setSendTime(now);
             instructionJpa.save(instruction);
         }
 
@@ -93,7 +96,7 @@ public class NevController {
     }
 
     /**
-     * 远程升级
+     * 远程升级 0x82
      *
      * @param content
      * @return
@@ -108,7 +111,7 @@ public class NevController {
     }
 
     /**
-     * 参数查询 (不包含0x84)
+     * 参数查询 0x80 (不包含0x84)
      *
      * @param content
      * @return
@@ -116,16 +119,17 @@ public class NevController {
     private byte[] queryParam(String content) {
         String[] paramIds = content.split(",");
         int length = paramIds.length;
-        byte[] bytes = new byte[length];
+        byte[] bytes = new byte[length + 1];
+        bytes[0] = (byte) length;
         for (int i = 0; i < length; i++) {
-            bytes[i] = Byte.valueOf(paramIds[i]);
+            bytes[i + 1] = Byte.valueOf(paramIds[i]);
         }
 
         return bytes;
     }
 
     /**
-     * 参数设置 (不包含0x84)
+     * 参数设置 0x81 (不包含0x84)
      *
      * @param content
      * @return
@@ -133,20 +137,25 @@ public class NevController {
     private byte[] setParam(String content) throws Exception {
         Map map = JacksonUtil.toObject(content, HashMap.class);
 
+        int i = 0;
         ByteBuf buf = Unpooled.buffer();
         for (Iterator iterator = map.keySet().iterator(); iterator.hasNext(); ) {
             Object key = iterator.next();
             int id = Integer.parseInt(String.valueOf(key));
             String value = String.valueOf(map.get(key));
-
             byte[] bytes = CommonUtil.gb32960SetParam(id, value);
             buf.writeBytes(bytes);
+            i++;
+            if (0x05 == id || 0x0E == id) {
+                i++;
+            }
         }
 
-        byte[] byteArr = new byte[buf.writerIndex()];
-        buf.getBytes(0, byteArr);
+        int length = buf.writerIndex();
+        byte[] byteArr = new byte[length + 1];
+        byteArr[0] = (byte) i;
+        buf.getBytes(0, byteArr, 1, length);
 
         return byteArr;
     }
-
 }
