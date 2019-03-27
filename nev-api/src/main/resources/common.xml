@@ -5,8 +5,8 @@
     </property>
     <property>
         <name>tstar.common.database.url</name>
-        <!--<value>jdbc:oracle:thin:@192.168.1.156:1521/xgsid.xg156.com</value>-->
-        <value>jdbc:oracle:thin:@192.168.1.36:1521/hyora</value>
+        <value>jdbc:oracle:thin:@192.168.1.156:1521/xgsid.xg156.com</value>
+        <!--<value>jdbc:oracle:thin:@192.168.1.36:1521/hyora</value>-->
     </property>
     <property>
         <name>tstar.common.database.username</name>
@@ -14,8 +14,8 @@
     </property>
     <property>
         <name>tstar.common.database.password</name>
-        <!--<value>TSTAR</value>-->
-        <value>Tstar123</value>
+        <value>TSTAR</value>
+        <!--<value>Tstar123</value>-->
     </property>
     <property>
         <name>tstar.common.database.pool.max.connections</name>
@@ -37,8 +37,8 @@
     <!-- Redis basic configurations -->
     <property>
         <name>tstar.common.redis.host</name>
-        <!--<value>192.168.1.156</value>-->
-        <value>192.168.1.37</value>
+        <value>192.168.1.156</value>
+        <!--<value>192.168.1.37</value>-->
         <descrption>Redis server host.</descrption>
     </property>
     <property>
@@ -48,14 +48,14 @@
     </property>
     <property>
         <name>tstar.common.redis.password</name>
-        <!--<value></value>-->
-        <value>Test123</value>
+        <value></value>
+        <!--<value>Test123</value>-->
         <descrption>Redis server password.</descrption>
     </property>
     <property>
         <name>tstar.common.redis.db</name>
-        <!--<value>0</value>-->
-        <value>1</value>
+        <value>0</value>
+        <!--<value>1</value>-->
         <descrption>Redis server db. (0,1,2...)</descrption>
     </property>
 

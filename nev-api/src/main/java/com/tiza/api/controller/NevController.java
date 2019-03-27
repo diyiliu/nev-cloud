@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * 指令下发接口
  * Description: NevController
  * Author: DIYILIU
  * Update: 2019-03-22 17:41
@@ -54,10 +56,19 @@ public class NevController {
         byte[] bytes = null;
         switch (cmd) {
             case 0x80:
-                bytes = queryParam(paramStr);
+                if (paramStr.startsWith("132|")) {
+                    bytes = queryExtra(paramStr);
+                } else {
+                    bytes = queryParam(paramStr);
+                }
+
                 break;
             case 0x81:
-                bytes = setParam(paramStr);
+                if (paramStr.startsWith("132|")) {
+                    bytes = setExtra(paramStr);
+                } else {
+                    bytes = setParam(paramStr);
+                }
                 break;
             case 0x82:
                 bytes = remoteUpdate(paramStr);
@@ -174,5 +185,91 @@ public class NevController {
         buf.getBytes(0, bytes, 1, length);
 
         return bytes;
+    }
+
+    /**
+     * 扩展协议查询
+     *
+     * @param content
+     * @return
+     */
+    private byte[] queryExtra(String content) {
+        // 0x84
+        if (content.startsWith("132|")) {
+            String[] strArr = content.split("\\|");
+            int id = Integer.parseInt(strArr[0]);
+            String params = strArr[1];
+
+            String[] paramIds = params.split(",");
+            int count = paramIds.length;
+            ByteBuf buf = Unpooled.buffer(3 + count);
+            buf.writeByte(1);
+            buf.writeByte(id);
+            buf.writeByte(count);
+            for (String p : paramIds) {
+                buf.writeByte(Integer.parseInt(p));
+            }
+
+            return buf.array();
+        }
+
+        return new byte[0];
+    }
+
+    /**
+     * 扩展协议设置
+     *
+     * @param content
+     * @return
+     */
+    private byte[] setExtra(String content) {
+        // 0x84
+        if (content.startsWith("132|")) {
+            String[] strArr = content.split("\\|");
+            int id = Integer.parseInt(strArr[0]);
+            String params = strArr[1];
+
+            ByteBuf buf = Unpooled.buffer();
+            buf.writeByte(1);
+            buf.writeByte(id);
+            try {
+                Map<String, Object> paramMap = JacksonUtil.toObject(params, HashMap.class);
+                buf.writeByte(paramMap.size());
+                for (Iterator<String> iterator = paramMap.keySet().iterator(); iterator.hasNext(); ) {
+                    String key = iterator.next();
+                    String value = String.valueOf(paramMap.get(key));
+
+                    int option = Integer.valueOf(key);
+                    buf.writeByte(option);
+                    if (1 == option) {
+                        buf.writeBytes(CommonUtil.str2Bytes(value, 17));
+                    } else if (2 == option || 4 == option) {
+
+                        buf.writeByte(Integer.valueOf(value));
+                    } else if (3 == option || 5 == option) {
+                        buf.writeInt(Integer.valueOf(value));
+                    } else if (6 == option || 7 == option || 8 == option) {
+                        String[] items = value.split(",");
+
+                        buf.writeByte(Integer.valueOf(items[0]));
+                        buf.writeShort(Integer.valueOf(items[1]));
+                        String host = items[2];
+                        buf.writeBytes(CommonUtil.str2Bytes(host.length() < 32 ? host + ";" : host, 32));
+                    } else {
+                        log.warn("0x84 选项[{}]内容未知!", option);
+                    }
+                }
+
+                int length = buf.writerIndex();
+                byte[] bytes = new byte[length];
+                buf.getBytes(0, bytes);
+
+                return bytes;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return new byte[0];
     }
 }
