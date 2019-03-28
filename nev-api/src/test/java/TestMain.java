@@ -91,4 +91,13 @@ public class TestMain {
         System.out.println(strArr.length);
         System.out.println(strArr[25]);
     }
+
+    @Test
+    public void test8(){
+
+        String str = "123-456-789";
+        String[] strArr = str.split("-");
+
+        System.out.println(strArr.length);
+    }
 }

@@ -56,7 +56,7 @@ public class NevController {
         byte[] bytes = null;
         switch (cmd) {
             case 0x80:
-                if (paramStr.startsWith("132|")) {
+                if (paramStr.startsWith("132|") || paramStr.startsWith("130|")) {
                     bytes = queryExtra(paramStr);
                 } else {
                     bytes = queryParam(paramStr);
@@ -64,7 +64,7 @@ public class NevController {
 
                 break;
             case 0x81:
-                if (paramStr.startsWith("132|")) {
+                if (paramStr.startsWith("132|") || paramStr.startsWith("130|")) {
                     bytes = setExtra(paramStr);
                 } else {
                     bytes = setParam(paramStr);
@@ -269,6 +269,33 @@ public class NevController {
                 e.printStackTrace();
             }
         }
+
+        // 0x82 CAN 数据透传
+        if (content.startsWith("130|")) {
+            String[] strArr = content.split("\\|");
+            int id = Integer.parseInt(strArr[0]);
+            String params = strArr[1];
+
+            String[] items = params.split(",");
+
+            int count1 = Integer.valueOf(items[0]);
+            int count2 = Integer.valueOf(items[1]);
+            int len = Integer.valueOf(items[2]);
+            // 帧ID
+            String[] ids = items[3].split("-");
+
+            ByteBuf buf = Unpooled.buffer(4 + len * ids.length);
+            buf.writeByte(1);
+            buf.writeByte(id);
+            buf.writeByte(count1);
+            buf.writeByte(count2);
+            for (String str : ids) {
+                buf.writeBytes(CommonUtil.hexStringToBytes(str));
+            }
+
+            return buf.array();
+        }
+
 
         return new byte[0];
     }
